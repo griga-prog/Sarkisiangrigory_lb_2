@@ -1,6 +1,6 @@
 ﻿// Sarkisiangrigory_lb_2.cpp : Этот файл содержит функцию "main". Здесь начинается и заканчивается выполнение программы.
 //
-
+#include <fstream>
 #include <iostream>
 #include <string>
 #include <vector>
@@ -9,7 +9,7 @@ struct pipe {
     std::string mark;
     double lenght;
     double diam;
-    std::string sig;
+    bool sig;
 };
 
 struct KS
@@ -23,12 +23,13 @@ struct KS
 
 std::vector<pipe> pipes;
 std::vector<KS> stations;
+std::string data = "data.txt";
 
 void adpipe() {
     std::string mark;
     double lenght;
     double diam;
-    std::string sig;
+    bool sig;
     pipe p;
     std::cout << "Enter mark ";
     std::cin >> mark;
@@ -118,7 +119,7 @@ void redactpipe() {
         std::string mark;
         double lenght;
         double diam;
-        std::string sig;
+        bool sig;
 
         std::cout << "Enter mark ";
         std::cin >> mark;
@@ -143,9 +144,99 @@ void redactpipe() {
 
 }
 void redactKS() {
+    int x;
+    std::cin >> x;
+    if (x - 1 < stations.size()) {
+        int i = x - 1;
+        std::string name;
+        int factories;
+        int factinwork;
+        std::string clas;
+        std::cout << "Enter name ";
+        std::cin >> name;
+        stations[i].name = name;
+
+        std::cout << "Enter factories";
+        std::cin >> factories;
+        stations[i].factories = factories;
+
+        std::cout << "Enter factories in work";
+        std::cin >> factinwork;
+        stations[i].factinwork = factinwork;
+
+        std::cout << "Enter class";
+        std::cin >> clas;
+        stations[i].clas = clas;
+    }
+    else {
+        std::cout << "number is not found";
+    }
+}
+
+void saveTofile() {
+    std::ofstream out(data);
+    if (!out.is_open()) {
+        std::cout << "can't open the file\n";
+        return;
+    }
+    out << pipes.size() << '\n';
+    for (const auto& p : pipes) {
+        out << p.mark << '\n'
+            << p.lenght << '\n'
+            << p.diam << '\n'
+            << p.sig << '\n';
+    }
+
+    out << stations.size() << '\n';
+    for (const auto& k : stations) {
+        out << k.name << '\n'
+            << k.factories << '\n'
+            << k.factinwork << '\n'
+            << k.clas << '\n';
+    }
 
 }
 
+void loadtofile() {
+    std::ifstream in(data);
+    if (!in.is_open()) {
+        std::cout << "can't open the file\n";
+        return;
+    }
+
+    pipes.clear();
+    stations.clear();
+    size_t n;
+    if (!(in >> n)) {
+        std::cout << "file empty or broken";
+        return;
+    }
+
+    in.ignore();
+
+    for (size_t i = 0; i < n; ++i) {
+        pipe p;
+        std::getline(in, p.mark);
+        in >> p.lenght;
+        in >> p.diam;
+        in >> p.sig;
+        pipes.push_back(p);
+
+    }
+    in.ignore();
+
+    for (size_t i = 0; i < n; ++i) {
+        KS k;
+        std::getline(in, k.name);
+        in >> k.factories;
+        in >> k.factinwork;
+        in.ignore();
+        std::getline(in, k.clas);
+       stations.push_back(k);
+
+    }
+    std::cout << "load pipes and stations";
+}
 
 
 int main()
@@ -181,11 +272,13 @@ int main()
         case 5: {
             std::cout << "redact KS\n";
             std::cout << "choose KS\n";
+            redactKS();
             viewKS();
             break;
         }
         case 6: {
             std::cout << "save\n";
+            saveTofile();
             break;
         }
         case 7: {
