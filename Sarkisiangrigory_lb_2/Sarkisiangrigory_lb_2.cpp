@@ -110,7 +110,41 @@ void viewKS() {
     }
 }
 
+void redactpipe() {
+    int x;
+    std::cin >> x;
+    if (x - 1 < pipes.size()) {
+        int i = x - 1;
+        std::string mark;
+        double lenght;
+        double diam;
+        std::string sig;
 
+        std::cout << "Enter mark ";
+        std::cin >> mark;
+        pipes[i].mark = mark;
+
+        std::cout << "Enter lenght";
+        std::cin >> lenght;
+        pipes[i].lenght = lenght;
+
+        std::cout << "Enter diam";
+        std::cin >> diam;
+        pipes[i].diam = diam;
+
+        std::cout << "Enter sig";
+        std::cin >> sig;
+        pipes[i].sig = sig;
+    }
+    else {
+        std::cout << "number is not found";
+    }
+
+
+}
+void redactKS() {
+
+}
 
 
 
@@ -141,6 +175,7 @@ int main()
             std::cout << "redact pipe\n";
             std::cout << "choose pipe\n";
             viewpipes();
+            redactpipe();
             break;
         }
         case 5: {
