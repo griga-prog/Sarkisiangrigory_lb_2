@@ -93,19 +93,19 @@ void viewpipes() {
     else {
         int i = 1;
         for (const auto& p : pipes) {
-            std::cout << i << "." << p.mark << " mark " << p.lenght << " km " << p.diam << " mm " << p.sig << "\n";
+            std::cout << i << "." << " mark: " << p.mark << " " << p.lenght << "km " << p.diam << "mm " << "repair " << p.sig << "\n";
             ++i;
         }
     }
 }
-void viewKS() {
+void viewKS() { 
     if (stations.empty()) {
         std::cout << "stations not found\n";
     }
     else {
         int j = 1;
         for (const auto& k : stations) {
-            std::cout << j << "." << k.name << " name " << k.factories << " qaun" << k.factinwork << " number " << k.clas << " class" << "\n";
+            std::cout << j << "." << " name: " << k.name << " " << k.factories << " number of factories " << k.factinwork << " number of factories in work " << k.clas << " class" << "\n";
             ++j;
         }
     }
@@ -220,12 +220,18 @@ void loadtofile() {
         in >> p.lenght;
         in >> p.diam;
         in >> p.sig;
+        in.ignore();
         pipes.push_back(p);
 
     }
+    size_t ns;
+    if (!(in >> ns)) {
+        std::cout << "loaded " << pipes.size() << " pipes\n";
+        return;
+    }
     in.ignore();
 
-    for (size_t i = 0; i < n; ++i) {
+    for (size_t i = 0; i < ns; ++i) {
         KS k;
         std::getline(in, k.name);
         in >> k.factories;
@@ -235,7 +241,8 @@ void loadtofile() {
        stations.push_back(k);
 
     }
-    std::cout << "load pipes and stations";
+    std::cout << "loaded " << pipes.size() << " pipes, "
+        << stations.size() << " stations\n";
 }
 
 
@@ -283,6 +290,7 @@ int main()
         }
         case 7: {
             std::cout << "downloaud\n";
+            loadtofile();
             break;
         }
         case 0: {
