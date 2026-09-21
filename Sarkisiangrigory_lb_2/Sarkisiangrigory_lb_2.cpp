@@ -66,28 +66,52 @@ void adKS() {
     int factinwork;
     std::string clas;
     KS k;
-    std::cout << "Enter mark ";
+    std::cout << "Enter name ";
     std::cin >> name;
     k.name = name;
 
-    std::cout << "Enter lenght";
+    std::cout << "Enter factories";
     std::cin >> factories;
     k.factories = factories;
 
-    std::cout << "Enter diam";
+    std::cout << "Enter factories in work";
     std::cin >> factinwork;
     k.factinwork = factinwork;
 
-    std::cout << "Enter sig";
+    std::cout << "Enter class";
     std::cin >> clas;
     k.clas = clas;
 
     stations.push_back(k);
 }
 
-void viewall() {
-
+void viewpipes() {
+    if (pipes.empty()) {
+        std::cout << "pipes not found \n";
+    }
+    else {
+        int i = 1;
+        for (const auto& p : pipes) {
+            std::cout << i << "." << p.mark << " mark " << p.lenght << " km " << p.diam << " mm " << p.sig << "\n";
+            ++i;
+        }
+    }
 }
+void viewKS() {
+    if (stations.empty()) {
+        std::cout << "stations not found\n";
+    }
+    else {
+        int j = 1;
+        for (const auto& k : stations) {
+            std::cout << j << "." << k.name << " name " << k.factories << " qaun" << k.factinwork << " number " << k.clas << " class" << "\n";
+            ++j;
+        }
+    }
+}
+
+
+
 
 
 int main()
@@ -109,14 +133,20 @@ int main()
         }
         case 3: {
             std::cout << "View all obj\n";
+            viewpipes();
+            viewKS();
             break;
         }
         case 4: {
             std::cout << "redact pipe\n";
+            std::cout << "choose pipe\n";
+            viewpipes();
             break;
         }
         case 5: {
             std::cout << "redact KS\n";
+            std::cout << "choose KS\n";
+            viewKS();
             break;
         }
         case 6: {
