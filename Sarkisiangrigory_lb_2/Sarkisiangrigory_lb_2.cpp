@@ -4,6 +4,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <limits>
 
 struct pipe {
     std::string mark;
@@ -18,12 +19,66 @@ struct KS
     int factories;
     int factinwork;
     std::string clas;
-
 };
 
 std::vector<pipe> pipes;
 std::vector<KS> stations;
 std::string data = "data.txt";
+
+
+
+void clearInput() {
+    std::cin.clear();
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+}
+
+int getInt(const std::string& prompt) {
+    int value;
+    while (true) {
+        std::cout << prompt;
+        if (std::cin >> value) {
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            return value;
+        }
+        std::cout << "Error: enter a number, please.\n";
+        clearInput();
+    }
+}
+
+double getDouble(const std::string& prompt) {
+    double value;
+    while (true) {
+        std::cout << prompt;
+        if (std::cin >> value) {
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            return value;
+        }
+        std::cout << "Error: enter a number, please.\n";
+        clearInput();
+    }
+}
+
+std::string getString(const std::string& prompt) {
+    std::string value;
+    while (true) {
+        std::cout << prompt;
+        if (std::cin >> value) {
+            return value;
+        }
+        std::cout << "Error: empty input.\n";
+        clearInput();
+    }
+}
+
+bool getBool(const std::string& prompt) {
+    while (true) {
+        int value = getInt(prompt + " (0 - not repair, 1 - repair): ");
+        if (value == 0 || value == 1) return value == 1;
+        std::cout << "Error: only 0 or 1 allowed.\n";
+    }
+}
+
+
 
 void adpipe() {
     std::string mark;
@@ -31,56 +86,39 @@ void adpipe() {
     double diam;
     bool sig;
     pipe p;
-    std::cout << "Enter mark ";
-    std::cin >> mark;
+
+    mark = getString("Enter mark ");
     p.mark = mark;
 
-    std::cout << "Enter lenght";
-    std::cin >> lenght;
+    lenght = getDouble("Enter lenght ");
     p.lenght = lenght;
 
-    std::cout << "Enter diam";
-    std::cin >> diam;
+    diam = getDouble("Enter diam ");
     p.diam = diam;
 
-    std::cout << "Enter sig";
-    std::cin >> sig;
+    sig = getBool("Enter sig");
     p.sig = sig;
 
-    std::cout << p.mark;
-    std::cout << p.lenght;
-    std::cout << p.diam;
-    std::cout << p.sig;
-   /* pipes.push_back(pipe{ mark,lenght,diam,sig });*/
     pipes.push_back(p);
-    //for (const auto& s : pipes) {
-    //        std::cout << s.mark << " mark " << s.lenght << " km " << s.diam << " mm " << s.sig << "\n";
-    //    }
-
-
-
-
 }
+
 void adKS() {
     std::string name;
     int factories;
     int factinwork;
     std::string clas;
     KS k;
-    std::cout << "Enter name ";
-    std::cin >> name;
+
+    name = getString("Enter name ");
     k.name = name;
 
-    std::cout << "Enter factories";
-    std::cin >> factories;
+    factories = getInt("Enter factories ");
     k.factories = factories;
 
-    std::cout << "Enter factories in work";
-    std::cin >> factinwork;
+    factinwork = getInt("Enter factories in work ");
     k.factinwork = factinwork;
 
-    std::cout << "Enter class";
-    std::cin >> clas;
+    clas = getString("Enter class ");
     k.clas = clas;
 
     stations.push_back(k);
@@ -98,7 +136,8 @@ void viewpipes() {
         }
     }
 }
-void viewKS() { 
+
+void viewKS() {
     if (stations.empty()) {
         std::cout << "stations not found\n";
     }
@@ -112,64 +151,66 @@ void viewKS() {
 }
 
 void redactpipe() {
-    int x;
-    std::cin >> x;
-    if (x - 1 < pipes.size()) {
+    if (pipes.empty()) {
+        std::cout << "pipes not found\n";
+        return;
+    }
+
+    int x = getInt("Enter pipe number: ");
+
+    if (x >= 1 && x <= (int)pipes.size()) {
         int i = x - 1;
         std::string mark;
         double lenght;
         double diam;
         bool sig;
 
-        std::cout << "Enter mark ";
-        std::cin >> mark;
+        mark = getString("Enter mark ");
         pipes[i].mark = mark;
 
-        std::cout << "Enter lenght";
-        std::cin >> lenght;
+        lenght = getDouble("Enter lenght ");
         pipes[i].lenght = lenght;
 
-        std::cout << "Enter diam";
-        std::cin >> diam;
+        diam = getDouble("Enter diam ");
         pipes[i].diam = diam;
 
-        std::cout << "Enter sig";
-        std::cin >> sig;
+        sig = getBool("Enter sig");
         pipes[i].sig = sig;
     }
     else {
-        std::cout << "number is not found";
+        std::cout << "number is not found\n";
+    }
+}
+
+void redactKS() {
+    if (stations.empty()) {
+        std::cout << "stations not found\n";
+        return;
     }
 
+    int x = getInt("Enter KS number: ");
 
-}
-void redactKS() {
-    int x;
-    std::cin >> x;
-    if (x - 1 < stations.size()) {
+    if (x >= 1 && x <= (int)stations.size()) {
         int i = x - 1;
         std::string name;
         int factories;
         int factinwork;
         std::string clas;
-        std::cout << "Enter name ";
-        std::cin >> name;
+
+        name = getString("Enter name ");
         stations[i].name = name;
 
-        std::cout << "Enter factories";
-        std::cin >> factories;
+        factories = getInt("Enter factories ");
         stations[i].factories = factories;
 
-        std::cout << "Enter factories in work";
-        std::cin >> factinwork;
+        factinwork = getInt("Enter factories in work ");
         stations[i].factinwork = factinwork;
 
-        std::cout << "Enter class";
-        std::cin >> clas;
+        clas = getString("Enter class ");
         stations[i].clas = clas;
     }
     else {
-        std::cout << "number is not found";
+        std::cout << "number is not found\n";
     }
 }
 
@@ -194,7 +235,6 @@ void saveTofile() {
             << k.factinwork << '\n'
             << k.clas << '\n';
     }
-
 }
 
 void loadtofile() {
@@ -206,24 +246,24 @@ void loadtofile() {
 
     pipes.clear();
     stations.clear();
+
     size_t n;
     if (!(in >> n)) {
-        std::cout << "file empty or broken";
+        std::cout << "file empty or broken\n";
         return;
     }
-
     in.ignore();
 
     for (size_t i = 0; i < n; ++i) {
         pipe p;
         std::getline(in, p.mark);
-        in >> p.lenght;
-        in >> p.diam;
-        in >> p.sig;
+        if (!(in >> p.lenght)) { std::cout << "read error\n"; return; }
+        if (!(in >> p.diam)) { std::cout << "read error\n"; return; }
+        if (!(in >> p.sig)) { std::cout << "read error\n"; return; }
         in.ignore();
         pipes.push_back(p);
-
     }
+
     size_t ns;
     if (!(in >> ns)) {
         std::cout << "loaded " << pipes.size() << " pipes\n";
@@ -234,24 +274,24 @@ void loadtofile() {
     for (size_t i = 0; i < ns; ++i) {
         KS k;
         std::getline(in, k.name);
-        in >> k.factories;
-        in >> k.factinwork;
+        if (!(in >> k.factories)) { std::cout << "read error\n"; return; }
+        if (!(in >> k.factinwork)) { std::cout << "read error\n"; return; }
         in.ignore();
         std::getline(in, k.clas);
-       stations.push_back(k);
-
+        stations.push_back(k);
     }
+
     std::cout << "loaded " << pipes.size() << " pipes, "
         << stations.size() << " stations\n";
 }
-
 
 int main()
 {
     int flag = 1;
     while (flag != 0) {
-        std::cout << "\n 1. add pipe \n 2. add KS \n 3. View all obj \n 4. redact pipe \n 5. redact KS \n 6. save \n 7. downloaud \n 0. exit";
-        std::cin >> flag;
+        std::cout << "\n 1. add pipe \n 2. add KS \n 3. View all obj \n 4. redact pipe \n 5. redact KS \n 6. save \n 7. downloaud \n 0. exit\n";
+        flag = getInt("> ");
+
         switch (flag) {
         case 1: {
             std::cout << "\nadd pipe\n";
@@ -294,12 +334,11 @@ int main()
             break;
         }
         case 0: {
-            std::cout << "\n 1. add pipe \n 2. add KS \n 3. View all obj \n 4. redact pipe \n 5. redact KS \n 6. save \n 7. downloaud \n 0. exit";
+            std::cout << "exit\n";
             break;
         }
+        default:
+            std::cout << "Error: no such menu item. Choose 0-7.\n";
         }
     }
-}  
-
-
-
+}
