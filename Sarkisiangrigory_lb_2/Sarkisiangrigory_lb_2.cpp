@@ -3,7 +3,6 @@
 #include <fstream>
 #include <iostream>
 #include <string>
-#include <vector>
 #include <limits>
 
 struct pipe {
@@ -21,8 +20,10 @@ struct KS
     std::string clas;
 };
 
-std::vector<pipe> pipes;
-std::vector<KS> stations;
+pipe currentPipe;
+KS currentStation;
+bool pipeSet = false;
+bool stationSet = false;
 std::string data = "data.txt";
 
 
@@ -81,138 +82,78 @@ bool getBool(const std::string& prompt) {
 
 
 void adpipe() {
-    std::string mark;
-    double lenght;
-    double diam;
-    bool sig;
     pipe p;
+    p.mark = getString("Enter mark ");
+    p.lenght = getDouble("Enter lenght ");
+    p.diam = getDouble("Enter diam ");
+    p.sig = getBool("Enter sig");
 
-    mark = getString("Enter mark ");
-    p.mark = mark;
-
-    lenght = getDouble("Enter lenght ");
-    p.lenght = lenght;
-
-    diam = getDouble("Enter diam ");
-    p.diam = diam;
-
-    sig = getBool("Enter sig");
-    p.sig = sig;
-
-    pipes.push_back(p);
-}
-
-void adKS() {
-    std::string name;
-    int factories;
-    int factinwork;
-    std::string clas;
-    KS k;
-
-    name = getString("Enter name ");
-    k.name = name;
-
-    factories = getInt("Enter factories ");
-    k.factories = factories;
-
-    factinwork = getInt("Enter factories in work ");
-    k.factinwork = factinwork;
-
-    clas = getString("Enter class ");
-    k.clas = clas;
-
-    stations.push_back(k);
+    currentPipe = p;
+    pipeSet = true;
 }
 
 void viewpipes() {
-    if (pipes.empty()) {
-        std::cout << "pipes not found \n";
+    if (!pipeSet) {
+        std::cout << "pipe not found \n";
     }
     else {
-        int i = 1;
-        for (const auto& p : pipes) {
-            std::cout << i << "." << " mark: " << p.mark << " " << p.lenght << "km " << p.diam << "mm " << "repair " << p.sig << "\n";
-            ++i;
-        }
-    }
-}
-
-void viewKS() {
-    if (stations.empty()) {
-        std::cout << "stations not found\n";
-    }
-    else {
-        int j = 1;
-        for (const auto& k : stations) {
-            std::cout << j << "." << " name: " << k.name << " " << k.factories << " number of factories " << k.factinwork << " number of factories in work " << k.clas << " class" << "\n";
-            ++j;
-        }
+        std::cout << " mark: " << currentPipe.mark
+            << " " << currentPipe.lenght << "km "
+            << currentPipe.diam << "mm "
+            << "repair " << currentPipe.sig << "\n";
     }
 }
 
 void redactpipe() {
-    if (pipes.empty()) {
-        std::cout << "pipes not found\n";
+    if (!pipeSet) {
+        std::cout << "pipe not found\n";
         return;
     }
 
-    int x = getInt("Enter pipe number: ");
+    currentPipe.mark = getString("Enter mark ");
+    currentPipe.lenght = getDouble("Enter lenght ");
+    currentPipe.diam = getDouble("Enter diam ");
+    currentPipe.sig = getBool("Enter sig");
+}
 
-    if (x >= 1 && x <= (int)pipes.size()) {
-        int i = x - 1;
-        std::string mark;
-        double lenght;
-        double diam;
-        bool sig;
 
-        mark = getString("Enter mark ");
-        pipes[i].mark = mark;
 
-        lenght = getDouble("Enter lenght ");
-        pipes[i].lenght = lenght;
+void adKS() {
+    KS k;
+    k.name = getString("Enter name ");
+    k.factories = getInt("Enter factories ");
+    k.factinwork = getInt("Enter factories in work ");
+    k.clas = getString("Enter class ");
 
-        diam = getDouble("Enter diam ");
-        pipes[i].diam = diam;
+    currentStation = k;
+    stationSet = true;
+}
 
-        sig = getBool("Enter sig");
-        pipes[i].sig = sig;
+void viewKS() {
+    if (!stationSet) {
+        std::cout << "station not found\n";
     }
     else {
-        std::cout << "number is not found\n";
+        std::cout << " name: " << currentStation.name
+            << " " << currentStation.factories << " number of factories "
+            << currentStation.factinwork << " number of factories in work "
+            << currentStation.clas << " class" << "\n";
     }
 }
 
 void redactKS() {
-    if (stations.empty()) {
-        std::cout << "stations not found\n";
+    if (!stationSet) {
+        std::cout << "station not found\n";
         return;
     }
 
-    int x = getInt("Enter KS number: ");
-
-    if (x >= 1 && x <= (int)stations.size()) {
-        int i = x - 1;
-        std::string name;
-        int factories;
-        int factinwork;
-        std::string clas;
-
-        name = getString("Enter name ");
-        stations[i].name = name;
-
-        factories = getInt("Enter factories ");
-        stations[i].factories = factories;
-
-        factinwork = getInt("Enter factories in work ");
-        stations[i].factinwork = factinwork;
-
-        clas = getString("Enter class ");
-        stations[i].clas = clas;
-    }
-    else {
-        std::cout << "number is not found\n";
-    }
+    currentStation.name = getString("Enter name ");
+    currentStation.factories = getInt("Enter factories ");
+    currentStation.factinwork = getInt("Enter factories in work ");
+    currentStation.clas = getString("Enter class ");
 }
+
+
 
 void saveTofile() {
     std::ofstream out(data);
@@ -220,21 +161,24 @@ void saveTofile() {
         std::cout << "can't open the file\n";
         return;
     }
-    out << pipes.size() << '\n';
-    for (const auto& p : pipes) {
-        out << p.mark << '\n'
-            << p.lenght << '\n'
-            << p.diam << '\n'
-            << p.sig << '\n';
+
+    out << (pipeSet ? 1 : 0) << '\n';
+    if (pipeSet) {
+        out << currentPipe.mark << '\n'
+            << currentPipe.lenght << '\n'
+            << currentPipe.diam << '\n'
+            << currentPipe.sig << '\n';
     }
 
-    out << stations.size() << '\n';
-    for (const auto& k : stations) {
-        out << k.name << '\n'
-            << k.factories << '\n'
-            << k.factinwork << '\n'
-            << k.clas << '\n';
+    out << (stationSet ? 1 : 0) << '\n';
+    if (stationSet) {
+        out << currentStation.name << '\n'
+            << currentStation.factories << '\n'
+            << currentStation.factinwork << '\n'
+            << currentStation.clas << '\n';
     }
+
+    std::cout << "saved\n";
 }
 
 void loadtofile() {
@@ -244,52 +188,51 @@ void loadtofile() {
         return;
     }
 
-    pipes.clear();
-    stations.clear();
+    pipeSet = false;
+    stationSet = false;
 
-    size_t n;
-    if (!(in >> n)) {
+    int pFlag;
+    if (!(in >> pFlag)) {
         std::cout << "file empty or broken\n";
         return;
     }
     in.ignore();
+    pipeSet = (pFlag == 1);
 
-    for (size_t i = 0; i < n; ++i) {
-        pipe p;
-        std::getline(in, p.mark);
-        if (!(in >> p.lenght)) { std::cout << "read error\n"; return; }
-        if (!(in >> p.diam)) { std::cout << "read error\n"; return; }
-        if (!(in >> p.sig)) { std::cout << "read error\n"; return; }
+    if (pipeSet) {
+        std::getline(in, currentPipe.mark);
+        if (!(in >> currentPipe.lenght)) { std::cout << "read error\n"; return; }
+        if (!(in >> currentPipe.diam)) { std::cout << "read error\n"; return; }
+        if (!(in >> currentPipe.sig)) { std::cout << "read error\n"; return; }
         in.ignore();
-        pipes.push_back(p);
     }
 
-    size_t ns;
-    if (!(in >> ns)) {
-        std::cout << "loaded " << pipes.size() << " pipes\n";
+    int sFlag;
+    if (!(in >> sFlag)) {
+        std::cout << "loaded pipe\n";
         return;
     }
     in.ignore();
+    stationSet = (sFlag == 1);
 
-    for (size_t i = 0; i < ns; ++i) {
-        KS k;
-        std::getline(in, k.name);
-        if (!(in >> k.factories)) { std::cout << "read error\n"; return; }
-        if (!(in >> k.factinwork)) { std::cout << "read error\n"; return; }
+    if (stationSet) {
+        std::getline(in, currentStation.name);
+        if (!(in >> currentStation.factories)) { std::cout << "read error\n"; return; }
+        if (!(in >> currentStation.factinwork)) { std::cout << "read error\n"; return; }
         in.ignore();
-        std::getline(in, k.clas);
-        stations.push_back(k);
+        std::getline(in, currentStation.clas);
     }
 
-    std::cout << "loaded " << pipes.size() << " pipes, "
-        << stations.size() << " stations\n";
+    std::cout << "loaded\n";
 }
+
+
 
 int main()
 {
     int flag = 1;
     while (flag != 0) {
-        std::cout << "\n 1. add pipe \n 2. add KS \n 3. View all obj \n 4. redact pipe \n 5. redact KS \n 6. save \n 7. downloaud \n 0. exit\n";
+        std::cout << "\n 1. add pipe \n 2. add KS \n 3. View all obj \n 4. redact pipe \n 5. redact KS \n 6. save \n 7. download \n 0. exit\n";
         flag = getInt("> ");
 
         switch (flag) {
@@ -311,16 +254,12 @@ int main()
         }
         case 4: {
             std::cout << "redact pipe\n";
-            std::cout << "choose pipe\n";
-            viewpipes();
             redactpipe();
             break;
         }
         case 5: {
             std::cout << "redact KS\n";
-            std::cout << "choose KS\n";
             redactKS();
-            viewKS();
             break;
         }
         case 6: {
@@ -329,7 +268,7 @@ int main()
             break;
         }
         case 7: {
-            std::cout << "downloaud\n";
+            std::cout << "download\n";
             loadtofile();
             break;
         }
