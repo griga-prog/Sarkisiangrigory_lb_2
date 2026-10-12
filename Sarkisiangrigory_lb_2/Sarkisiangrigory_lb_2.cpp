@@ -20,34 +20,14 @@ struct KS
     std::string clas;
 };
 
-pipe currentPipe;
-KS currentStation;
-bool pipeSet = false;
-bool stationSet = false;
-std::string data = "data.txt";
-
-
-
 void clearInput() {
     std::cin.clear();
     std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 }
 
-int getInt(const std::string& prompt) {
-    int value;
-    while (true) {
-        std::cout << prompt;
-        if (std::cin >> value) {
-            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-            return value;
-        }
-        std::cout << "Error: enter a number, please.\n";
-        clearInput();
-    }
-}
-
-double getDouble(const std::string& prompt) {
-    double value;
+template <typename T>
+T getNumber(const std::string& prompt) {
+    T value;
     while (true) {
         std::cout << prompt;
         if (std::cin >> value) {
@@ -73,7 +53,7 @@ std::string getString(const std::string& prompt) {
 
 bool getBool(const std::string& prompt) {
     while (true) {
-        int value = getInt(prompt + " (0 - not repair, 1 - repair): ");
+        int value = getNumber<int>(prompt + " (0 - not repair, 1 - repair): ");
         if (value == 0 || value == 1) return value == 1;
         std::cout << "Error: only 0 or 1 allowed.\n";
     }
@@ -81,18 +61,15 @@ bool getBool(const std::string& prompt) {
 
 
 
-void adpipe() {
-    pipe p;
-    p.mark = getString("Enter mark ");
-    p.lenght = getDouble("Enter lenght ");
-    p.diam = getDouble("Enter diam ");
-    p.sig = getBool("Enter sig");
-
-    currentPipe = p;
+void adpipe(pipe& currentPipe, bool& pipeSet) {
+    currentPipe.mark = getString("Enter mark ");
+    currentPipe.lenght = getNumber<double>("Enter lenght ");
+    currentPipe.diam = getNumber<double>("Enter diam ");
+    currentPipe.sig = getBool("Enter sig");
     pipeSet = true;
 }
 
-void viewpipes() {
+void viewpipes(bool pipeSet, const pipe& currentPipe) {
     if (!pipeSet) {
         std::cout << "pipe not found \n";
     }
@@ -104,32 +81,28 @@ void viewpipes() {
     }
 }
 
-void redactpipe() {
+void redactpipe(bool pipeSet, pipe& currentPipe) {
     if (!pipeSet) {
         std::cout << "pipe not found\n";
         return;
     }
 
     currentPipe.mark = getString("Enter mark ");
-    currentPipe.lenght = getDouble("Enter lenght ");
-    currentPipe.diam = getDouble("Enter diam ");
+    currentPipe.lenght = getNumber<double>("Enter lenght ");
+    currentPipe.diam = getNumber<double>("Enter diam ");
     currentPipe.sig = getBool("Enter sig");
 }
 
 
-
-void adKS() {
-    KS k;
-    k.name = getString("Enter name ");
-    k.factories = getInt("Enter factories ");
-    k.factinwork = getInt("Enter factories in work ");
-    k.clas = getString("Enter class ");
-
-    currentStation = k;
+void adKS(KS& currentStation, bool& stationSet) {
+    currentStation.name = getString("Enter name ");
+    currentStation.factories = getNumber<int>("Enter factories ");
+    currentStation.factinwork = getNumber<int>("Enter factories in work ");
+    currentStation.clas = getString("Enter class ");
     stationSet = true;
 }
 
-void viewKS() {
+void viewKS(bool stationSet, const KS& currentStation) {
     if (!stationSet) {
         std::cout << "station not found\n";
     }
@@ -141,48 +114,97 @@ void viewKS() {
     }
 }
 
-void redactKS() {
+void redactKS(bool stationSet, KS& currentStation) {
     if (!stationSet) {
         std::cout << "station not found\n";
         return;
     }
 
     currentStation.name = getString("Enter name ");
-    currentStation.factories = getInt("Enter factories ");
-    currentStation.factinwork = getInt("Enter factories in work ");
+    currentStation.factories = getNumber<int>("Enter factories ");
+    currentStation.factinwork = getNumber<int>("Enter factories in work ");
     currentStation.clas = getString("Enter class ");
 }
 
 
 
-void saveTofile() {
-    std::ofstream out(data);
+void savePipe(std::ofstream& out, bool pipeSet, const pipe& p) {
+    out << (pipeSet ? 1 : 0) << '\n';
+    if (pipeSet) {
+        out << p.mark << '\n'
+            << p.lenght << '\n'
+            << p.diam << '\n'
+            << p.sig << '\n';
+    }
+}
+
+void loadPipe(std::ifstream& in, bool& pipeSet, pipe& p) {
+    int flag;
+    if (!(in >> flag)) {
+        std::cout << "file empty or broken\n";
+        pipeSet = false;
+        return;
+    }
+    in.ignore();
+    pipeSet = (flag == 1);
+
+    if (pipeSet) {
+        std::getline(in, p.mark);
+        if (!(in >> p.lenght)) { std::cout << "read error\n"; pipeSet = false; return; }
+        if (!(in >> p.diam)) { std::cout << "read error\n"; pipeSet = false; return; }
+        if (!(in >> p.sig)) { std::cout << "read error\n"; pipeSet = false; return; }
+        in.ignore();
+    }
+}
+
+
+
+void saveStation(std::ofstream& out, bool stationSet, const KS& k) {
+    out << (stationSet ? 1 : 0) << '\n';
+    if (stationSet) {
+        out << k.name << '\n'
+            << k.factories << '\n'
+            << k.factinwork << '\n'
+            << k.clas << '\n';
+    }
+}
+
+void loadStation(std::ifstream& in, bool& stationSet, KS& k) {
+    int flag;
+    if (!(in >> flag)) {
+        std::cout << "loaded pipe\n";
+        stationSet = false;
+        return;
+    }
+    in.ignore();
+    stationSet = (flag == 1);
+
+    if (stationSet) {
+        std::getline(in, k.name);
+        if (!(in >> k.factories)) { std::cout << "read error\n"; stationSet = false; return; }
+        if (!(in >> k.factinwork)) { std::cout << "read error\n"; stationSet = false; return; }
+        in.ignore();
+        std::getline(in, k.clas);
+    }
+}
+
+
+
+void saveTofile(const std::string& filename,bool pipeSet, const pipe& p,bool stationSet, const KS& k) {
+    std::ofstream out(filename);
     if (!out.is_open()) {
         std::cout << "can't open the file\n";
         return;
     }
-
-    out << (pipeSet ? 1 : 0) << '\n';
-    if (pipeSet) {
-        out << currentPipe.mark << '\n'
-            << currentPipe.lenght << '\n'
-            << currentPipe.diam << '\n'
-            << currentPipe.sig << '\n';
-    }
-
-    out << (stationSet ? 1 : 0) << '\n';
-    if (stationSet) {
-        out << currentStation.name << '\n'
-            << currentStation.factories << '\n'
-            << currentStation.factinwork << '\n'
-            << currentStation.clas << '\n';
-    }
-
+    savePipe(out, pipeSet, p);
+    saveStation(out, stationSet, k);
     std::cout << "saved\n";
 }
 
-void loadtofile() {
-    std::ifstream in(data);
+void loadtofile(const std::string& filename,
+    bool& pipeSet, pipe& p,
+    bool& stationSet, KS& k) {
+    std::ifstream in(filename);
     if (!in.is_open()) {
         std::cout << "can't open the file\n";
         return;
@@ -191,37 +213,8 @@ void loadtofile() {
     pipeSet = false;
     stationSet = false;
 
-    int pFlag;
-    if (!(in >> pFlag)) {
-        std::cout << "file empty or broken\n";
-        return;
-    }
-    in.ignore();
-    pipeSet = (pFlag == 1);
-
-    if (pipeSet) {
-        std::getline(in, currentPipe.mark);
-        if (!(in >> currentPipe.lenght)) { std::cout << "read error\n"; return; }
-        if (!(in >> currentPipe.diam)) { std::cout << "read error\n"; return; }
-        if (!(in >> currentPipe.sig)) { std::cout << "read error\n"; return; }
-        in.ignore();
-    }
-
-    int sFlag;
-    if (!(in >> sFlag)) {
-        std::cout << "loaded pipe\n";
-        return;
-    }
-    in.ignore();
-    stationSet = (sFlag == 1);
-
-    if (stationSet) {
-        std::getline(in, currentStation.name);
-        if (!(in >> currentStation.factories)) { std::cout << "read error\n"; return; }
-        if (!(in >> currentStation.factinwork)) { std::cout << "read error\n"; return; }
-        in.ignore();
-        std::getline(in, currentStation.clas);
-    }
+    loadPipe(in, pipeSet, p);
+    loadStation(in, stationSet, k);
 
     std::cout << "loaded\n";
 }
@@ -230,46 +223,52 @@ void loadtofile() {
 
 int main()
 {
+    pipe currentPipe;
+    KS currentStation;
+    bool pipeSet = false;
+    bool stationSet = false;
+    std::string data = "data.txt";
+
     int flag = 1;
     while (flag != 0) {
         std::cout << "\n 1. add pipe \n 2. add KS \n 3. View all obj \n 4. redact pipe \n 5. redact KS \n 6. save \n 7. download \n 0. exit\n";
-        flag = getInt("> ");
+        flag = getNumber<int>("> ");
 
         switch (flag) {
         case 1: {
             std::cout << "\nadd pipe\n";
-            adpipe();
+            adpipe(currentPipe, pipeSet);
             break;
         }
         case 2: {
             std::cout << "add KS\n";
-            adKS();
+            adKS(currentStation, stationSet);
             break;
         }
         case 3: {
             std::cout << "View all obj\n";
-            viewpipes();
-            viewKS();
+            viewpipes(pipeSet, currentPipe);
+            viewKS(stationSet, currentStation);
             break;
         }
         case 4: {
             std::cout << "redact pipe\n";
-            redactpipe();
+            redactpipe(pipeSet, currentPipe);
             break;
         }
         case 5: {
             std::cout << "redact KS\n";
-            redactKS();
+            redactKS(stationSet, currentStation);
             break;
         }
         case 6: {
             std::cout << "save\n";
-            saveTofile();
+            saveTofile(data, pipeSet, currentPipe, stationSet, currentStation);
             break;
         }
         case 7: {
             std::cout << "download\n";
-            loadtofile();
+            loadtofile(data, pipeSet, currentPipe, stationSet, currentStation);
             break;
         }
         case 0: {
